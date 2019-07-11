@@ -1,28 +1,13 @@
-version: "2"
+version: "3"
 services:
-  ntopng:
-    image: ppcelery/ntopng-docker
+  ntopng-service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: ntopng-docker:v1.0.0
     restart: always
-    logging:
-      driver: syslog
-      options:
-        syslog-facility: local6
-        tag: ntopng
-    network_mode: host
-    volumes:
-      - /var/lib/ntopng:/var/tmp/ntopng
-    command: -w 0.0.0.0:443 -r localhost:6379 -Z "/monitor"
-  redis:
-    image: redis:3.0
-    restart: always
-    logging:
-      driver: syslog
-      options:
-        syslog-facility: local6
-        tag: redis
+    command: -w 0.0.0.0:443
     ports:
-      - 6379:6379
+      - 443:3000/tcp
+    network_mode: host
 
-networks:
-  default:
-    driver: bridge

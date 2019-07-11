@@ -1,17 +1,19 @@
-FROM ubuntu:14.04
-MAINTAINER Laisky <me@laisky.com>
+FROM ubuntu:18.04
+MAINTAINER ntop.org
 
-RUN apt-get update
-RUN apt-get -y -q install curl
-RUN curl -s --remote-name http://packages.ntop.org/apt/14.04/all/apt-ntop.deb
-RUN sudo dpkg -i apt-ntop.deb
-RUN rm -rf apt-ntop.deb
+RUN apt-get update && \
+    apt-get -y -q install wget lsb-release gnupg && \
+    apt-get -y install libjson-c-dev && \
+    wget -q http://apt-stable.ntop.org/16.04/all/apt-ntop-stable.deb && \
+    dpkg -i apt-ntop-stable.deb && \
+    apt-get clean all
 
-RUN apt-get update
-RUN apt-get -y -q install ntopng libpcap0.8 libmysqlclient18
+RUN apt-get update && \
+    apt-get -y install ntopng 
 
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN echo '#!/bin/bash\n/etc/init.d/redis-server start\nntopng "$@"' > /run.sh && \
+    chmod +x /run.sh
 
-EXPOSE 3000
+EXPOSE 443
 
-ENTRYPOINT ["/usr/local/bin/ntopng"]
+ENTRYPOINT ["/run.sh"]
